@@ -71,6 +71,18 @@ Na leitura do notebook, esse comportamento ficou ainda mais claro quando a troca
 
 A preparação do conjunto final foi feita com **11 variáveis**: **6 numéricas** e **5 categóricas**. O alvo era `is_canceled`.
 
+### Pipeline de pré-processamento
+
+O pré-processamento foi encapsulado em um pipeline aplicado antes do ajuste do modelo. As etapas principais foram:
+
+- **StandardScaler** (variáveis numéricas): padroniza as variáveis numéricas para média zero e desvio padrão 1. Isso evita que features com escala maior dominem o processo de aprendizado, melhora a estabilidade e convergência de muitos algoritmos e torna coeficientes e distâncias comparáveis.
+
+- **OneHotEncoder** (variáveis categóricas): converte categorias em vetores binários (one-hot). Essa transformação preserva informação categórica sem impor ordenação numérica e permite que modelos lineares e baseados em árvores tratem categorias de forma explícita.
+
+As transformações são aplicadas por coluna (por exemplo via `ColumnTransformer`) com `col_num` submetido ao `StandardScaler` e `col_cat` ao `OneHotEncoder`. O `preprocessor` final foi treinado apenas no conjunto de treino e persistido em `models/preprocessor.joblib` para uso pela API e pela interface Streamlit.
+
+Essa etapa de pré-processamento é executada sempre antes da predição — tanto no pipeline de treinamento quanto no endpoint de inferência (`POST /prever_churn`) — garantindo que os dados enviados para o modelo sigam a mesma escala e codificação usados em treino.
+
 O recorte principal foi este:
 
 ```python
