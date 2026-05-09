@@ -12,6 +12,8 @@ Este projeto resolve esse cenário com dados. A proposta é identificar, com ant
 
 ## Os dados
 
+Fonte dos dados: [Kaggle - Hotel Booking Demand](https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand)
+
 A base do projeto contém informações operacionais e comportamentais de reservas de hotel. Entre os sinais usados na modelagem estão:
 
 - antecedência da reserva;
@@ -71,18 +73,6 @@ Na leitura do notebook, esse comportamento ficou ainda mais claro quando a troca
 
 A preparação do conjunto final foi feita com **11 variáveis**: **6 numéricas** e **5 categóricas**. O alvo era `is_canceled`.
 
-### Pipeline de pré-processamento
-
-O pré-processamento foi encapsulado em um pipeline aplicado antes do ajuste do modelo. As etapas principais foram:
-
-- **StandardScaler** (variáveis numéricas): padroniza as variáveis numéricas para média zero e desvio padrão 1. Isso evita que features com escala maior dominem o processo de aprendizado, melhora a estabilidade e convergência de muitos algoritmos e torna coeficientes e distâncias comparáveis.
-
-- **OneHotEncoder** (variáveis categóricas): converte categorias em vetores binários (one-hot). Essa transformação preserva informação categórica sem impor ordenação numérica e permite que modelos lineares e baseados em árvores tratem categorias de forma explícita.
-
-As transformações são aplicadas por coluna (por exemplo via `ColumnTransformer`) com `col_num` submetido ao `StandardScaler` e `col_cat` ao `OneHotEncoder`. O `preprocessor` final foi treinado apenas no conjunto de treino e persistido em `models/preprocessor.joblib` para uso pela API e pela interface Streamlit.
-
-Essa etapa de pré-processamento é executada sempre antes da predição — tanto no pipeline de treinamento quanto no endpoint de inferência (`POST /prever_churn`) — garantindo que os dados enviados para o modelo sigam a mesma escala e codificação usados em treino.
-
 ### Tratamento de dados nulos
 
 Os valores ausentes são tratados no fluxo de limpeza e pré-processamento conforme implementado no notebook e no `preprocessor` persistido. Especificamente:
@@ -118,19 +108,18 @@ col_cat = ['hotel', 'market_segment', 'deposit_type', 'customer_type', 'tem_filh
 
 Essas variáveis foram escolhidas porque condensam o comportamento comercial e operacional da reserva antes do check-in.
 
-Fonte dos dados: [Kaggle - Hotel Booking Demand](https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand)
-## Resultado de modelagem
+### Pipeline de pré-processamento
 
-O modelo final foi escolhido para priorizar o **recall** da classe de cancelamento. Em outras palavras, a meta foi capturar o maior número possível de cancelamentos reais.
+O pré-processamento foi encapsulado em um pipeline aplicado antes do ajuste do modelo. As etapas principais foram:
 
-Isso faz sentido para o problema de negócio: é melhor detectar cedo a maioria dos hóspedes que vão cancelar do que deixá-los escapar sem reação.
+- **StandardScaler** (variáveis numéricas): padroniza as variáveis numéricas para média zero e desvio padrão 1. Isso evita que features com escala maior dominem o processo de aprendizado, melhora a estabilidade e convergência de muitos algoritmos e torna coeficientes e distâncias comparáveis.
 
-Na prática, isso ajuda o hotel a:
+- **OneHotEncoder** (variáveis categóricas): converte categorias em vetores binários (one-hot). Essa transformação preserva informação categórica sem impor ordenação numérica e permite que modelos lineares e baseados em árvores tratem categorias de forma explícita.
 
-- reavaliar overbooking;
-- ajustar a alocação de quartos;
-- preparar ações de retenção;
-- proteger receita e ocupação.
+As transformações são aplicadas por coluna (por exemplo via `ColumnTransformer`) com `col_num` submetido ao `StandardScaler` e `col_cat` ao `OneHotEncoder`. O `preprocessor` final foi treinado apenas no conjunto de treino e persistido em `models/preprocessor.joblib` para uso pela API e pela interface Streamlit.
+
+Essa etapa de pré-processamento é executada sempre antes da predição — tanto no pipeline de treinamento quanto no endpoint de inferência (`POST /prever_churn`) — garantindo que os dados enviados para o modelo sigam a mesma escala e codificação usados em treino.
+
 
 ### Comparação entre modelos
 
@@ -154,6 +143,20 @@ Em termos de negócio, o impacto foi descrito assim no notebook:
 - o primeiro modelo ainda deixava escapar **28%** dos canceladores;
 - o segundo modelo reduziu essa perda para **23%**;
 - o ganho veio ao custo de uma queda de precisão de **79%** para **74%**, que foi aceita porque o foco era prevenir cancelamentos, não apenas evitar alarmes falsos.
+
+## Resultado de modelagem
+
+O modelo final foi escolhido para priorizar o **recall** da classe de cancelamento. Em outras palavras, a meta foi capturar o maior número possível de cancelamentos reais.
+
+Isso faz sentido para o problema de negócio: é melhor detectar cedo a maioria dos hóspedes que vão cancelar do que deixá-los escapar sem reação.
+
+Na prática, isso ajuda o hotel a:
+
+- reavaliar overbooking;
+- ajustar a alocação de quartos;
+- preparar ações de retenção;
+- proteger receita e ocupação.
+
 
 ### Por que o Random Forest venceu
 
