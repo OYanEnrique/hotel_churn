@@ -2,6 +2,9 @@ import os
 
 import requests
 import streamlit as st
+import joblib
+import io
+from pathlib import Path
 
 
 st.set_page_config(page_title="Hotel Churn", page_icon="🏨", layout="centered")
@@ -14,6 +17,32 @@ st.write(
 )
 
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000/prever_churn")
+MODEL_DRIVE_URL = os.getenv("MODEL_DRIVE_URL", "https://drive.google.com/uc?export=download&id=18KwDP5GL_aw9LNV5HkBQ3I8k40NwiQ8d")
+
+# If no API_URL is reachable, we can run prediction locally by loading the
+# preprocessor and model. The code below loads them lazily on first use so
+# app startup on Streamlit Cloud isn't blocked by heavy downloads.
+_MODEL = None
+_PREPROCESSOR = None
+BASE_DIR = Path(__file__).resolve().parents[1]
+PREP_PATH = BASE_DIR / "models" / "preprocessor.joblib"
+
+def load_model_and_preprocessor():
+    global _MODEL, _PREPROCESSOR
+    if _PREPROCESSOR is None:
+        if PREP_PATH.exists():
+            _PREPROCESSOR = joblib.load(PREP_PATH)
+        else:
+            st.warning("Preprocessor não encontrado em models/. Algumas features podem falhar.")
+    if _MODEL is None:
+        try:
+            # tenta baixar do Google Drive (caso o modelo não esteja no repo)
+            resp = requests.get(MODEL_DRIVE_URL, timeout=120)
+            resp.raise_for_status()
+            _MODEL = joblib.load(io.BytesIO(resp.content))
+        except Exception as e:
+            st.error(f"Falha ao carregar o modelo: {e}")
+            _MODEL = None
 
 FIELD_LABELS = {
     "lead_time": "Com quantos dias de antecedência a reserva foi feita?",
@@ -85,16 +114,41 @@ if submitted:
         "tem_filhos": tem_filhos,
     }
 
+    # Primeiro tentamos a API remota/local (se `API_URL` configurado)
+    used_api = False
     try:
-        response = requests.post(API_URL, json=payload, timeout=10)
-        if response.status_code == 200:
-            churn = response.json().get("churn_predito")
-            if churn == 1:
-                st.error("Previsão: este hóspede tem maior risco de churn.")
+        if API_URL:
+            response = requests.post(API_URL, json=payload, timeout=8)
+            if response.status_code == 200:
+                churn = response.json().get("churn_predito")
+                if churn == 1:
+                    st.error("Previsão: este hóspede tem maior risco de churn.")
+                else:
+                    st.success("Previsão: este hóspede tem menor risco de churn.")
+                st.json(response.json())
+                used_api = True
             else:
-                st.success("Previsão: este hóspede tem menor risco de churn.")
-            st.json(response.json())
+                st.error(f"Erro da API ({response.status_code}): {response.text}")
+    except requests.exceptions.RequestException:
+        st.info("API não acessível — tentando predição localmente (se disponível).")
+
+    # Se a API não respondeu, tentamos executar a predição localmente
+    if not used_api:
+        load_model_and_preprocessor()
+        if _MODEL is None or _PREPROCESSOR is None:
+            st.error("Predição local indisponível: modelo/preprocessor não carregados e API inacessível.")
         else:
-            st.error(f"Erro da API ({response.status_code}): {response.text}")
-    except requests.exceptions.RequestException as exc:
-        st.error(f"Não foi possível acessar a API em {API_URL}: {exc}")
+            try:
+                import pandas as _pd
+
+                cliente_df = _pd.DataFrame([payload])
+                cliente_tratado = _PREPROCESSOR.transform(cliente_df)
+                pred = _MODEL.predict(cliente_tratado)
+                churn = int(pred[0])
+                if churn == 1:
+                    st.error("Previsão: este hóspede tem maior risco de churn.")
+                else:
+                    st.success("Previsão: este hóspede tem menor risco de churn.")
+                st.json({"churn_predito": churn, "via": "local"})
+            except Exception as e:
+                st.error(f"Erro durante predição local: {e}")
