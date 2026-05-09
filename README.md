@@ -41,16 +41,19 @@ O trabalho foi conduzido com base em duas perguntas centrais:
 
 - Hipótese nula: o tipo de cliente não influencia a taxa de cancelamento.
 - Hipótese alternativa: o tipo de cliente influencia a taxa de cancelamento.
+	- Resultado: hipótese alternativa venceu — há evidência estatística de diferença (rejeitamos a hipótese nula).
 
 - Hipótese nula: reservas com crianças ou bebês não se comportam de forma diferente em relação ao cancelamento.
 - Hipótese alternativa: reservas com crianças ou bebês se comportam de forma diferente.
+	- Resultado: hipótese alternativa venceu — há evidência estatística de diferença (rejeitamos a hipótese nula).
 
 - Hipótese nula: o mês de chegada não altera a taxa de cancelamento.
 - Hipótese alternativa: o mês de chegada altera a taxa de cancelamento.
+	- Resultado: hipótese alternativa venceu — há evidência estatística de diferença por mês (rejeitamos a hipótese nula).
 
 Essas hipóteses ajudaram a organizar a investigação e a encontrar sinais úteis para o negócio.
 
-O nível de significância utilizado nas hipóteses foi de **5%**, como referência para decidir se havia evidência estatística suficiente para rejeitar ou não a hipótese nula.
+Para testar cada hipótese utilizamos o teste qui-quadrado (chi-square) em tabelas de contingência, com nível de significância de **5%**. A decisão sobre rejeitar ou não a hipótese nula segue esse critério.
 
 ### Padrões mais relevantes
 
@@ -82,6 +85,7 @@ col_cat = ['hotel', 'market_segment', 'deposit_type', 'customer_type', 'tem_filh
 
 Essas variáveis foram escolhidas porque condensam o comportamento comercial e operacional da reserva antes do check-in.
 
+Fonte dos dados: [Kaggle - Hotel Booking Demand](https://www.kaggle.com/datasets/jessemostipak/hotel-booking-demand)
 ## Resultado de modelagem
 
 O modelo final foi escolhido para priorizar o **recall** da classe de cancelamento. Em outras palavras, a meta foi capturar o maior número possível de cancelamentos reais.
