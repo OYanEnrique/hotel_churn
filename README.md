@@ -39,9 +39,14 @@ O trabalho foi conduzido com base em duas perguntas centrais:
 
 ### Hipóteses que guiaram a análise
 
-- o tipo de cliente influencia a taxa de cancelamento;
-- reservas com crianças ou bebês se comportam de forma diferente;
-- o mês de chegada altera a taxa de cancelamento.
+- Hipótese nula: o tipo de cliente não influencia a taxa de cancelamento.
+- Hipótese alternativa: o tipo de cliente influencia a taxa de cancelamento.
+
+- Hipótese nula: reservas com crianças ou bebês não se comportam de forma diferente em relação ao cancelamento.
+- Hipótese alternativa: reservas com crianças ou bebês se comportam de forma diferente.
+
+- Hipótese nula: o mês de chegada não altera a taxa de cancelamento.
+- Hipótese alternativa: o mês de chegada altera a taxa de cancelamento.
 
 Essas hipóteses ajudaram a organizar a investigação e a encontrar sinais úteis para o negócio.
 
@@ -125,7 +130,7 @@ Ou seja: a floresta aleatória ganhou porque entregou mais cobertura sobre os ca
 
 ### Explicabilidade com SHAP
 
-O gráfico em [shap1000.png](shap1000.png) foi gerado a partir do modelo final com `TreeExplainer` e resume, de forma objetiva, como cada variável empurra a previsão para cima ou para baixo.
+O gráfico em [assets/shap1000.png](assets/shap1000.png) foi gerado a partir do modelo final com `TreeExplainer` e resume, de forma objetiva, como cada variável empurra a previsão para cima ou para baixo.
 
 O foco da leitura foi entender quais sinais mais contribuem para o cancelamento e como eles se combinam na previsão.
 
