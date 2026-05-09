@@ -130,7 +130,7 @@ if submitted:
             else:
                 st.error(f"Erro da API ({response.status_code}): {response.text}")
     except requests.exceptions.RequestException:
-        st.info("API não acessível — tentando predição localmente (se disponível).")
+        pass
 
     # Se a API não respondeu, tentamos executar a predição localmente
     if not used_api:
