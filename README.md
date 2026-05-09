@@ -192,13 +192,13 @@ Em resumo, o churn de hotel não deve ser tratado como surpresa operacional. Qua
 
 ## Como a solução funciona
 
-### Modelo no Google Drive
+### Modelo no GitHub Releases
 
-O `modelo.joblib` é carregado diretamente do Google Drive em memória pela API (sem download local do arquivo para disco).
+O `modelo.joblib` está disponível no repositório do projeto a partir do **GitHub Releases**, o que deixa o deploy mais estável e previsível em ambientes como Streamlit Cloud.
 
-Pasta do modelo no Drive:
+Link dos releases do projeto:
 
-https://drive.google.com/drive/folders/1kfIFATtqms9L4TUac_0QpdWbED4gm3b1
+https://github.com/OYanEnrique/hotel_churn/releases
 
 ### API
 
