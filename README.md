@@ -130,7 +130,9 @@ Ou seja: a floresta aleatória ganhou porque entregou mais cobertura sobre os ca
 
 ### Explicabilidade com SHAP
 
-O gráfico em [assets/shap1000.png](assets/shap1000.png) foi gerado a partir do modelo final com `TreeExplainer` e resume, de forma objetiva, como cada variável empurra a previsão para cima ou para baixo.
+O gráfico abaixo foi gerado a partir do modelo final com `TreeExplainer` e resume, de forma objetiva, como cada variável empurra a previsão para cima ou para baixo.
+
+![SHAP summary](assets/shap1000.png)
 
 O foco da leitura foi entender quais sinais mais contribuem para o cancelamento e como eles se combinam na previsão.
 
