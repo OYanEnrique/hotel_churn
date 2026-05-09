@@ -83,6 +83,27 @@ As transformações são aplicadas por coluna (por exemplo via `ColumnTransforme
 
 Essa etapa de pré-processamento é executada sempre antes da predição — tanto no pipeline de treinamento quanto no endpoint de inferência (`POST /prever_churn`) — garantindo que os dados enviados para o modelo sigam a mesma escala e codificação usados em treino.
 
+### Tratamento de dados nulos
+
+Os valores ausentes são tratados no fluxo de limpeza e pré-processamento conforme implementado no notebook e no `preprocessor` persistido. Especificamente:
+
+- `country`: preenchido com a string `'Unknown'` quando ausente, preservando a informação de falta de origem.
+- `children`, `babies`: preenchidos com `0` quando ausentes, já que a falta desses valores indica ausência de crianças/bebês na reserva.
+- `agent`, `company`: preenchidos com `0` quando ausentes (códigos nulos representam ausência de agente/empresa).
+
+Essas imputações foram aplicadas diretamente no conjunto limpo (`df_clean`) no notebook e também são incorporadas ao `preprocessor` salvo em `models/preprocessor.joblib`, garantindo comportamento idêntico em treinamento e inferência.
+
+### Feature engineering
+
+Durante a preparação dos dados criamos novas variáveis que capturam sinais operacionais relevantes:
+
+- `total_pessoas`: soma de `adults + children + babies` — expressa o tamanho da reserva como um sinal de comportamento e capacidade de gasto.
+- `total_noites`: soma de `stays_in_weekend_nights + stays_in_week_nights` — representa a duração total da estadia.
+- `tem_filhos`: variável booleana/nominal indicando presença de crianças/bebês (criada a partir de `children` e `babies`).
+- `mudou_quarto`: indicador binário que sinaliza se `reserved_room_type` difere de `assigned_room_type` (usado como proxy para trocas/upgrade durante a estadia).
+
+Essas features foram testadas por sua relação com `is_canceled` e integradas ao dataset final (`X`) usado para treinar o modelo. Elas também são esperadas como entradas pelo endpoint e pela interface Streamlit (veja `app/streamlit_app.py` e `app/api.py`).
+
 O recorte principal foi este:
 
 ```python
