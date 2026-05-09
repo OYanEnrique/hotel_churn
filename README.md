@@ -262,13 +262,21 @@ pip install -r requirements.txt
 
 ## Como executar
 
-### 1. Suba a API
+### Online (sem instalação)
+
+Acesse o app diretamente aqui: **[Hotel Churn Predictor — Online](https://hotel-churn.streamlit.app)**
+
+Basta preencher o formulário com os dados da reserva e clicar em "Analisar risco de churn". O app carrega o modelo automaticamente e retorna a previsão em segundos.
+
+### Local
+
+#### 1. Suba a API
 
 ```bash
 uvicorn app.api:app --host 0.0.0.0 --port 8000
 ```
 
-### 2. Suba o Streamlit
+#### 2. Suba o Streamlit
 
 Em outro terminal:
 
@@ -278,7 +286,7 @@ streamlit run app/streamlit_app.py
 
 Se necessário, ajuste a variável de ambiente `API_URL` para apontar para outro endereço da API.
 
-### 3. Com Docker
+#### 3. Com Docker
 
 ```bash
 docker build -t hotel-churn .
